@@ -6,25 +6,16 @@ metadata:
   namespace: kube-system
 data:
   mapRoles: |
-    - rolearn: arn:aws:iam::115136697128:role/eks-fargate-profile
+    - rolearn: <>
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
         - system:nodes
         - eks-console-dashboard-full-access-group
-    - rolearn: arn:aws:sts::115136697128:assumed-role/AWSReservedSSO_DevAdministratorAccess_d47d324d45df5d7e/joey@myzeller.com
+    - rolearn: <>
       username: ssoadmin
       groups:
         - system:masters
         - system:bootstrappers
         - system:nodes
         - eks-console-dashboard-full-access-group
-  # mapUsers: |
-  #   - userarn: arn:aws:iam::115136697128:user/admin
-  #     username: admin
-  #     groups:
-  #       - system:masters
-  #   - userarn: arn:aws:iam::115136697128:user/ops-user
-  #     username: ops-user
-  #     groups:
-  #       - system:masters
