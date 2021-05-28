@@ -1,7 +1,6 @@
 resource "aws_eks_cluster" "elk" {
   name     = "elk"
   role_arn = aws_iam_role.elk.arn
-  version  = 1.20
 
   vpc_config {
     subnet_ids = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
@@ -32,7 +31,7 @@ resource "aws_eks_fargate_profile" "elk" {
   subnet_ids             = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
 
   selector {
-    namespace = "default,kube_system"
+    namespace = "default"
   }
 }
 
