@@ -145,6 +145,21 @@ resource "aws_iam_role" "fargate_profile" {
     }]
     Version = "2012-10-17"
   })
+
+  inline_policy {
+    name = "logging_policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["log:*"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }
   tags = {
     COMPONENT_NAME = "elk"
   }
