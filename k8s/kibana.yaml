@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kibana
+  template:
+    metadata:
+      labels:
+        name: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: kibana:7.10.1
+          ports:
+            - containerPort: 5601
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://es-entrypoint:9200
+            - name: SERVER_HOST
+              value: 0.0.0.0
+            # - name: SERVER_BASEPATH
+            #   value: '/kibana'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-entrypoint
+spec:
+  selector:
+    name: kibana
+  ports:
+    - port: 5601
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: sidecar-ingress-3
+#   namespace: default
+#   annotations:
+#     kubernetes.io/ingress.class: alb
+#     alb.ingress.kubernetes.io/group.name: sidecar-ingress
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/group.order: '2'
+#     alb.ingress.kubernetes.io/healthcheck-path: /api/status
+# spec:
+#   rules:
+#     - http:
+#         paths:
+#           - path: /kibana*
+#             backend:
+#               serviceName: kibana-entrypoint
+#               servicePort: 5601

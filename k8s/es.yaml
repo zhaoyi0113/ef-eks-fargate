@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: es-config
+data:
+  elasticsearch.yml: |
+    cluster.name: my-elastic-cluster
+    network.host: "0.0.0.0"
+    bootstrap.memory_lock: false
+    discovery.zen.ping.unicast.hosts: elasticsearch-cluster
+    discovery.zen.minimum_master_nodes: 1
+    discovery.type: single-node
+  ES_JAVA_OPTS: -Xms2g -Xmx4g
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: es
+  namespace: default
+spec:
+  serviceName: es-entrypoint
+  replicas: 1
+  selector:
+    matchLabels:
+      name: es
+  template:
+    metadata:
+      labels:
+        name: es
+    spec:
+      volumes:
+        - name: es-config
+          configMap:
+            name: es-config
+            items:
+              - key: elasticsearch.yml
+                path: elasticsearch.yml
+        # - name: persistent-storage
+        #   persistentVolumeClaim:
+        #     claimName: efs-es-claim
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: es
+          image: elasticsearch:7.10.1
+          resources:
+            limits:
+              cpu: 2
+              memory: 8
+            requests:
+              cpu: 1
+              memory: 4
+          ports:
+            - name: http
+              containerPort: 9200
+            - containerPort: 9300
+              name: inter-node
+          volumeMounts:
+            - name: es-config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            # - name: persistent-storage
+            #   mountPath: /usr/share/elasticsearch/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-entrypoint
+spec:
+  selector:
+    name: es
+  ports:
+    - port: 9200
+      targetPort: 9200
+      protocol: TCP
+  type: NodePort
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: sidecar-ingress-2
+#   namespace: default
+#   annotations:
+#     kubernetes.io/ingress.class: alb
+#     alb.ingress.kubernetes.io/group.name: sidecar-ingress
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/group.order: '1'
+# spec:
+#   rules:
+#     - http:
+#         paths:
+#           - path: /es/*
+#             backend:
+#               serviceName: es-entrypoint
+#               servicePort: 9200

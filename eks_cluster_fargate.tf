@@ -12,6 +12,10 @@ resource "aws_eks_cluster" "elk" {
     aws_iam_role_policy_attachment.elk-AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.elk-AmazonEKSVPCResourceController,
   ]
+
+  tags = {
+    COMPONENT_NAME = "elk"
+  }
 }
 
 output "endpoint" {
@@ -33,6 +37,9 @@ resource "aws_eks_fargate_profile" "elk" {
   selector {
     namespace = "default"
   }
+  tags = {
+    COMPONENT_NAME = "elk"
+  }
 }
 
 resource "aws_eks_fargate_profile" "kube_system" {
@@ -43,6 +50,9 @@ resource "aws_eks_fargate_profile" "kube_system" {
 
   selector {
     namespace = "kube-system"
+  }
+  tags = {
+    COMPONENT_NAME = "elk"
   }
 }
 
@@ -65,6 +75,9 @@ resource "aws_iam_role" "elk" {
   ]
 }
 POLICY
+  tags = {
+    COMPONENT_NAME = "elk"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "elk-AmazonEKSClusterPolicy" {
@@ -89,6 +102,9 @@ resource "aws_iam_openid_connect_provider" "elk" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.elk.certificates[0].sha1_fingerprint]
   url             = aws_eks_cluster.elk.identity[0].oidc[0].issuer
+  tags = {
+    COMPONENT_NAME = "elk"
+  }
 }
 
 data "aws_iam_policy_document" "elk_assume_role_policy" {
@@ -129,6 +145,9 @@ resource "aws_iam_role" "fargate_profile" {
     }]
     Version = "2012-10-17"
   })
+  tags = {
+    COMPONENT_NAME = "elk"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonEKSFargatePodExecutionRolePolicy" {

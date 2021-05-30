@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apm-server-config
+  labels:
+    k8s-app: apm-server
+data:
+  apm-server.yml: |-
+    apm-server:
+      host: "0.0.0.0:8200"
+      frontend:
+        enabled: false
+    setup.template.settings:
+      index:
+        number_of_shards: 1
+        codec: best_compression
+    setup.kibana:
+      host: "kibana-entrypoint"
+    output.elasticsearch:
+      hosts: ["es-entrypoint"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apm-server
+  labels:
+    k8s-app: apm-server
+spec:
+  selector:
+    matchLabels:
+      k8s-app: apm-server
+  template:
+    metadata:
+      labels:
+        k8s-app: apm-server
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: apm-server
+        image: docker.elastic.co/apm/apm-server:7.11.1
+        ports:
+        - containerPort: 8200
+          name: apm-port
+        volumeMounts:
+        - name: apm-server-config
+          mountPath: /usr/share/apm-server/apm-server.yml
+          readOnly: true
+          subPath: apm-server.yml
+      volumes:
+        - name: apm-server-config
+          configMap:
+            name: apm-server-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apm-entrypoint
+spec:
+  selector:
+    k8s-app: apm-server
+  ports:
+    - port: 8200

@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes  1;
+    events {
+      worker_connections  10240;
+    }
+    http {
+      server {
+          listen       8080;
+          server_name  localhost;
+          location /es/ {
+            proxy_pass  http://es-entrypoint:9200/;
+          }
+          location /health {
+            proxy_pass  http://es-entrypoint:9200/_cluster/health;
+          }
+          location /apm/ {
+            proxy_pass http://apm-entrypoint:8200/;
+          }
+          location / {
+            proxy_pass  http://kibana-entrypoint:5601/;
+            proxy_redirect off;
+            proxy_buffering off;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            # rewrite ^/kibana/(.*)$ /$1 break;
+          }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecar-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: sidecar-app
+  template:
+    metadata:
+      labels:
+        name: sidecar-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sidecar-entrypoint
+spec:
+  selector:
+    name: sidecar-app
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+# apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sidecar-ingress-1
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: sidecar-ingress
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.order: '3'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Auth
+    alb.ingress.kubernetes.io/auth-type: cognito
+    alb.ingress.kubernetes.io/auth-idp-cognito: '{"userPoolARN":"arn:aws:cognito-idp:ap-southeast-2:264100014405:userpool/ap-southeast-2_0HXr9WJMJ","userPoolClientID":"2l9o31qbfrsv80fmeufq0jpalu","userPoolDomain":"kibana-monitor"}'
+    alb.ingress.kubernetes.io/auth-scope: 'email openid aws.cognito.signin.user.admin'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:264100014405:certificate/89729250-d3b9-407f-a325-2c120ee3cbb5
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: sidecar-entrypoint
+              servicePort: 8080
