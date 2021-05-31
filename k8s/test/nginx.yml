@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: elasticsearch:7.10.1
+          resources:
+            requests:
+              cpu: 2
+              memory: 8
+          ports:
+            - name: http
+              containerPort: 9200
+            - containerPort: 9300
+              name: inter-node

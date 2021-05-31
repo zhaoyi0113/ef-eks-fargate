@@ -19,9 +19,9 @@ data:
           location /health {
             proxy_pass  http://es-entrypoint:9200/_cluster/health;
           }
-          location /apm/ {
-            proxy_pass http://apm-entrypoint:8200/;
-          }
+          # location /apm/ {
+          #   proxy_pass http://apm-entrypoint:8200/;
+          # }
           location / {
             proxy_pass  http://kibana-entrypoint:5601/;
             proxy_redirect off;

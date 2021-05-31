@@ -46,12 +46,9 @@ spec:
         - name: es
           image: elasticsearch:7.10.1
           resources:
-            limits:
+            requests:
               cpu: 2
               memory: 8
-            requests:
-              cpu: 1
-              memory: 4
           ports:
             - name: http
               containerPort: 9200
@@ -76,23 +73,3 @@ spec:
       targetPort: 9200
       protocol: TCP
   type: NodePort
-# ---
-# apiVersion: extensions/v1beta1
-# kind: Ingress
-# metadata:
-#   name: sidecar-ingress-2
-#   namespace: default
-#   annotations:
-#     kubernetes.io/ingress.class: alb
-#     alb.ingress.kubernetes.io/group.name: sidecar-ingress
-#     alb.ingress.kubernetes.io/scheme: internet-facing
-#     alb.ingress.kubernetes.io/target-type: ip
-#     alb.ingress.kubernetes.io/group.order: '1'
-# spec:
-#   rules:
-#     - http:
-#         paths:
-#           - path: /es/*
-#             backend:
-#               serviceName: es-entrypoint
-#               servicePort: 9200

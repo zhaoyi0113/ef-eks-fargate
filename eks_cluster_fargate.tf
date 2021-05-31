@@ -153,7 +153,7 @@ resource "aws_iam_role" "fargate_profile" {
       Version = "2012-10-17"
       Statement = [
         {
-          Action   = ["log:*"]
+          Action   = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*", ]
           Effect   = "Allow"
           Resource = "*"
         },
