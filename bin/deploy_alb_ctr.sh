@@ -13,4 +13,4 @@ eksctl create iamserviceaccount \
   --override-existing-serviceaccounts \
   --approve
 
-eksctl utils associate-iam-oidc-provider --cluster elk
+eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME

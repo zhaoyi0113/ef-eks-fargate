@@ -12,5 +12,6 @@ sh bin/deploy_alb_ctr.sh
 
 ```bash
 kubectl apply -f k8s/service-account.yaml
+kubectl apply -f k8s/rdbc-role.yaml
 kubectl apply -f k8s/alb-controller.yaml
 ```
