@@ -190,7 +190,7 @@ resource "aws_iam_policy" "policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*"]
+        Action = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*", "waf:*", "wafv2:*", "waf-regional:*", "shield:*"]
         
         Effect   = "Allow"
         Resource = "*"
