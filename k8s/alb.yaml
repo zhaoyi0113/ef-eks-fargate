@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+# apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sidecar-ingress-1
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: sidecar-ingress
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.order: '3'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Auth
+    alb.ingress.kubernetes.io/auth-type: cognito
+    alb.ingress.kubernetes.io/auth-idp-cognito: '{"userPoolARN":"arn:aws:cognito-idp:ap-southeast-2:264100014405:userpool/ap-southeast-2_0HXr9WJMJ","userPoolClientID":"2l9o31qbfrsv80fmeufq0jpalu","userPoolDomain":"kibana-monitor"}'
+    alb.ingress.kubernetes.io/auth-scope: 'email openid aws.cognito.signin.user.admin'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:264100014405:certificate/89729250-d3b9-407f-a325-2c120ee3cbb5
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: sidecar-entrypoint
+              servicePort: 8080

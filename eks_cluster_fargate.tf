@@ -1,5 +1,5 @@
 resource "aws_eks_cluster" "elk" {
-  name     = "elk"
+  name     = var.eks_cluster_name
   role_arn = aws_iam_role.elk.arn
 
   vpc_config {
@@ -14,7 +14,7 @@ resource "aws_eks_cluster" "elk" {
   ]
 
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
 
@@ -38,7 +38,21 @@ resource "aws_eks_fargate_profile" "elk" {
     namespace = "default"
   }
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
+  }
+}
+
+resource "aws_eks_fargate_profile" "cert_manager" {
+  cluster_name           = aws_eks_cluster.elk.name
+  fargate_profile_name   = "cert_manager_profile"
+  pod_execution_role_arn = aws_iam_role.fargate_profile.arn
+  subnet_ids             = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
+
+  selector {
+    namespace = "cert-manager"
+  }
+  tags = {
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
 
@@ -52,14 +66,13 @@ resource "aws_eks_fargate_profile" "kube_system" {
     namespace = "kube-system"
   }
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
-
 # IAM Role
 
 resource "aws_iam_role" "elk" {
-  name = "eks-cluster-elk"
+  name = "eks-cluster-${var.eks_cluster_name}"
 
   assume_role_policy = <<POLICY
 {
@@ -76,7 +89,7 @@ resource "aws_iam_role" "elk" {
 }
 POLICY
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
 
@@ -103,7 +116,7 @@ resource "aws_iam_openid_connect_provider" "elk" {
   thumbprint_list = [data.tls_certificate.elk.certificates[0].sha1_fingerprint]
   url             = aws_eks_cluster.elk.identity[0].oidc[0].issuer
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
 
@@ -161,9 +174,31 @@ resource "aws_iam_role" "fargate_profile" {
     })
   }
   tags = {
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.eks_cluster_name
   }
 }
+
+# ALB controller iam policy
+resource "aws_iam_policy" "policy" {
+  name        = "AWSLoadBalancerControllerIAMPolicy-${var.eks_cluster_name}"
+  path        = "/"
+  description = "AWSLoadBalancerControllerIAMPolicy"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*"]
+        
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
 
 resource "aws_iam_role_policy_attachment" "AmazonEKSFargatePodExecutionRolePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
