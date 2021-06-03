@@ -37,30 +37,9 @@ resource "aws_eks_fargate_profile" "elk" {
   selector {
     namespace = "default"
   }
-  tags = {
-    COMPONENT_NAME = var.eks_cluster_name
-  }
-}
-
-resource "aws_eks_fargate_profile" "cert_manager" {
-  cluster_name           = aws_eks_cluster.elk.name
-  fargate_profile_name   = "cert_manager_profile"
-  pod_execution_role_arn = aws_iam_role.fargate_profile.arn
-  subnet_ids             = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
-
   selector {
     namespace = "cert-manager"
   }
-  tags = {
-    COMPONENT_NAME = var.eks_cluster_name
-  }
-}
-
-resource "aws_eks_fargate_profile" "kube_system" {
-  cluster_name           = aws_eks_cluster.elk.name
-  fargate_profile_name   = "kube_system_profile"
-  pod_execution_role_arn = aws_iam_role.fargate_profile.arn
-  subnet_ids             = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
 
   selector {
     namespace = "kube-system"
@@ -69,6 +48,7 @@ resource "aws_eks_fargate_profile" "kube_system" {
     COMPONENT_NAME = var.eks_cluster_name
   }
 }
+
 # IAM Role
 
 resource "aws_iam_role" "elk" {
@@ -95,6 +75,11 @@ POLICY
 
 resource "aws_iam_role_policy_attachment" "elk-AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.elk.name
+}
+
+resource "aws_iam_role_policy_attachment" "elk-tag-policy" {
+  policy_arn = aws_iam_policy.policy.arn 
   role       = aws_iam_role.elk.name
 }
 
