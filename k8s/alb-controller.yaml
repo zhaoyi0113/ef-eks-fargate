@@ -22,4 +22,4 @@ spec:
         - --aws-vpc-id=vpc-01a4229925460144f
         - --aws-region=ap-southeast-2
         image: docker.io/amazon/aws-alb-ingress-controller:v1.1.6
-      serviceAccountName: aws-load-balancer-controller
+      serviceAccountName: alb-ingress-controller
