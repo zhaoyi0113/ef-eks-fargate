@@ -12,8 +12,8 @@ sh bin/deploy_alb_ctr.sh
 
 ```bash
 #kubectl apply -f k8s/service-account.yaml
-kubectl apply -f k8s/rbac-role.yaml
-kubectl apply -f k8s/alb-controller.yaml
+kubectl apply -f k8s/alb/rbac-role.yaml
+kubectl apply -f k8s/alb/alb-controller.yaml
 ```
 
 ## Create EFS Driver
