@@ -1,17 +1,8 @@
-variable "region" {
-  default     = "ap-southeast-2"
-  description = "AWS region"
-}
-
 provider "aws" {
-  region = "ap-southeast-2"
+  region = var.region
 }
 
 data "aws_availability_zones" "available" {}
-
-locals {
-  cluster_name = "education-eks-${random_string.suffix.result}"
-}
 
 resource "random_string" "suffix" {
   length  = 8
@@ -32,19 +23,19 @@ module "vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    COMPONENT_NAME = "elk"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
+    COMPONENT_NAME = var.component_name
   }
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.component_name
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
-    COMPONENT_NAME = "elk"
+    COMPONENT_NAME = var.component_name
   }
 }
