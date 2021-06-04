@@ -8,6 +8,12 @@ sh bin/patch_dsn.sh
 sh bin/deploy_alb_ctr.sh
 ```
 
+## enable logging
+
+```bash
+kubectl apply -f k8s/aws-logging.yaml
+```
+
 ## Create alb controller
 
 ```bash
