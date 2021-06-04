@@ -40,6 +40,10 @@ resource "aws_iam_policy" "efs_csi_driverpolicy" {
       }
     ]
   })
+
+  tags = {
+    COMPONENT_NAME = var.component_name
+  }
 }
 
 resource "aws_security_group" "efs_sg" {
@@ -64,6 +68,20 @@ resource "aws_security_group" "efs_sg" {
   }
 
   tags = {
-    NCOMPONENT_NAME = var.component_name
+    COMPONENT_NAME = var.component_name
   }
+}
+
+resource "aws_efs_file_system" "efs_file_system" {
+  creation_token = var.eks_cluster_name
+
+  tags = {
+    COMPONENT_NAME = var.component_name
+  }
+}
+
+resource "aws_efs_mount_target" "efs_mount_target" {
+  file_system_id  = aws_efs_file_system.efs_file_system.id
+  subnet_id       = module.vpc.private_subnets[0]
+  security_groups = [aws_security_group.efs_sg.id]
 }
