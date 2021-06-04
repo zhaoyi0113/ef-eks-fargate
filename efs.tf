@@ -73,7 +73,6 @@ resource "aws_security_group" "efs_sg" {
 }
 
 resource "aws_efs_file_system" "efs_file_system" {
-  creation_token = var.eks_cluster_name
 
   tags = {
     COMPONENT_NAME = var.component_name

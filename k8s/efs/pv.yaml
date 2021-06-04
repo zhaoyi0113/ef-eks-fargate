@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv
+  name: efs-pv-1
 spec:
   capacity:
     storage: 512Gi
@@ -12,7 +12,7 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-5779486f
+    volumeHandle: fs-a9605191
 
 ---
 apiVersion: v1
