@@ -145,7 +145,7 @@ resource "aws_iam_role" "fargate_profile" {
   })
 
   inline_policy {
-    name = "logging_policy"
+    name = "fargate_profile_policy"
 
     policy = jsonencode({
       Version = "2012-10-17"
