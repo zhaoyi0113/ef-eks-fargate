@@ -67,3 +67,11 @@ resource "aws_efs_mount_target" "efs_mount_target_sn2" {
   subnet_id       = module.vpc.private_subnets[1]
   security_groups = [aws_security_group.efs_sg.id]
 }
+
+resource "aws_efs_access_point" "access_point" {
+  file_system_id = aws_efs_file_system.efs_file_system.id
+  posix_user {
+    gid = 1000
+    uid = 1000
+  }
+}
