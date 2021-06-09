@@ -56,8 +56,14 @@ resource "aws_efs_file_system" "efs_file_system" {
   }
 }
 
-resource "aws_efs_mount_target" "efs_mount_target" {
+resource "aws_efs_mount_target" "efs_mount_target_sn1" {
   file_system_id  = aws_efs_file_system.efs_file_system.id
   subnet_id       = module.vpc.private_subnets[0]
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+resource "aws_efs_mount_target" "efs_mount_target_sn2" {
+  file_system_id  = aws_efs_file_system.efs_file_system.id
+  subnet_id       = module.vpc.private_subnets[1]
   security_groups = [aws_security_group.efs_sg.id]
 }
