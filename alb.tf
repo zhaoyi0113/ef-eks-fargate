@@ -21,7 +21,7 @@ resource "aws_iam_role" "elk_alb_sc" {
       Version = "2012-10-17"
       Statement = [
         {
-          Action   = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*", "elasticfilesystem:*"]
+          Action   = ["log:*", "ec2:*", "iam:*", "elasticloadbalancing:*", "cognito-idp:*", "acm:*", "elasticfilesystem:*", "wafv2:*"]
           Effect   = "Allow"
           Resource = "*"
         },

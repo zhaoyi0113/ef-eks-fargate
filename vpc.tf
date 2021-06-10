@@ -24,18 +24,18 @@ module "vpc" {
 
   tags = {
     "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-    COMPONENT_NAME = var.component_name
+    COMPONENT_NAME                                  = var.component_name
   }
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                      = "1"
-    COMPONENT_NAME = var.component_name
+    "kubernetes.io/role/elb"                        = "1"
+    COMPONENT_NAME                                  = var.component_name
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = "1"
-    COMPONENT_NAME = var.component_name
+    "kubernetes.io/role/internal-elb"               = "1"
+    COMPONENT_NAME                                  = var.component_name
   }
 }

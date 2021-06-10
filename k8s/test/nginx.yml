@@ -14,13 +14,13 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: elasticsearch:7.10.1
-          resources:
-            requests:
-              cpu: 2
-              memory: 8
-          ports:
-            - name: http
-              containerPort: 9200
-            - containerPort: 9300
-              name: inter-node
+          image: ubuntu:latest
+          command: ["/bin/sh"]
+          args: ["-c", "while true; do echo $(date -u) >> /data/out1.txt; sleep 5; done"]
+          volumeMounts:
+          - name: persistent-storage
+            mountPath: /data
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: es-claim
