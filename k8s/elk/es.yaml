@@ -39,10 +39,14 @@ spec:
         - name: persistent-storage
           persistentVolumeClaim:
             claimName: es-claim
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
-        runAsGroup: 1000
+      initContainers:
+        - name: permissions-fix
+          image: busybox
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /usr/share/elasticsearch/data
+          command: [ 'chown' ]
+          args: [ '1000:1000', '/usr/share/elasticsearch/data' ]
       containers:
         - name: es
           image: elasticsearch:7.10.1
