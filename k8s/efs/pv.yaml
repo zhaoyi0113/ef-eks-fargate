@@ -12,7 +12,7 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-3663510e
+    volumeHandle: fs-8c4775b4
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1

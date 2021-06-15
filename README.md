@@ -1,11 +1,5 @@
 # ef-eks-fargate
 
-## enable logging
-
-```bash
-kubectl apply -f k8s/aws-logging.yaml
-```
-
 ## Deploy EKS Clsuter
 
 ```bash
@@ -15,13 +9,19 @@ sh bin/patch_dsn.sh
 ```
 wait until `coredns` pod becomes available.
 
+## enable logging
+
+```bash
+kubectl apply -f k8s/aws-logging.yaml
+```
+
 ## Create alb controller
 
 ```bash
 kubectl apply -f k8s/alb/service-account.yaml
 kubectl apply -f k8s/alb/cert-manager.yaml
 kubectl apply -f k8s/alb/rbac.yaml
-kubectl apply -f k8s/alb/alb-controller.yaml
+kubectl apply -f k8s/alb/alb.yaml
 ```
 
 ## Create EFS Driver
