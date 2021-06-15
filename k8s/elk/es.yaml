@@ -5,7 +5,7 @@ metadata:
   name: es-config
 data:
   elasticsearch.yml: |
-    cluster.name: my-elastic-cluster
+    cluster.name: elk-cluster
     network.host: "0.0.0.0"
     bootstrap.memory_lock: false
     discovery.zen.ping.unicast.hosts: elasticsearch-cluster

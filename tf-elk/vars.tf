@@ -19,7 +19,7 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-variable "es_endpoint" {
+variable "es_metrics_endpoint" {
   type    = string
-  default = "https://k8s-sidecar-7a158acff4-940632450.ap-southeast-2.elb.amazonaws.com/es/test_metrics"
+  default = "https://kibana.crms.myzeller.dev/es/test_metrics/_doc"
 }
