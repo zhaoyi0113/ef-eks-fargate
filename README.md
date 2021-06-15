@@ -31,8 +31,8 @@ sh bin/deploy_efs_service_account.sh
 kubectl apply -f k8s/efs/driver.yaml
 kubectl apply -f k8s/efs/pv.yaml
 
-
-# sh bin/create_efs.sh
-
-# follow the instruction https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html to create mount target
 ```
+
+## Deploy elk stack pods under k8selk
+
+## Deploy kinesis firehose under tf-elk
