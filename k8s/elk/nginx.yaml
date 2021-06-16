@@ -13,6 +13,12 @@ data:
       server {
           listen       8080;
           server_name  localhost;
+          location /es/test_metrics/_doc {
+            if ($request_method = POST ) {
+            }
+            proxy_method PUT;
+            proxy_pass  http://es-entrypoint:9200/test_metrics/_doc;
+          }
           location /es/ {
             proxy_pass  http://es-entrypoint:9200/;
           }
