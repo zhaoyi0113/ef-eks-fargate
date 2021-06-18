@@ -45,17 +45,17 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sidecar-app
+  name: sidecar
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: sidecar-app
+      name: sidecar
   template:
     metadata:
       labels:
-        name: sidecar-app
+        name: sidecar
     spec:
       containers:
         - name: nginx
@@ -83,7 +83,7 @@ metadata:
   name: sidecar-entrypoint
 spec:
   selector:
-    name: sidecar-app
+    name: sidecar
   ports:
     - port: 8080
       targetPort: 8080

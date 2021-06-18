@@ -18,3 +18,8 @@ variable "vpc_cidr" {
   type = string
   default = "10.0.0.0/16"
 }
+
+variable "kibana_endpoint" {
+  type    = string
+  default = "https://kibana.crms.myzeller.dev"
+}
