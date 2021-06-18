@@ -1,4 +1,3 @@
-# apiVersion: extensions/v1beta1
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -9,7 +8,7 @@ metadata:
     alb.ingress.kubernetes.io/group.name: sidecar
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/group.order: '3'
+    alb.ingress.kubernetes.io/group.order: '2'
     alb.ingress.kubernetes.io/healthcheck-path: /health
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     # Auth
