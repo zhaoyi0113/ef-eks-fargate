@@ -36,11 +36,16 @@ data:
         listen  8081;
         server_name localhost;
         location /es/test_metrics/_doc {
-            if ($request_method = PUT ) {
-            }
-            proxy_method POST;
-            proxy_pass  http://es-entrypoint:9200/test_metrics/_doc;
+          if ($request_method = PUT ) {
+            rewrite ^/api(.*)$ /internal$1 last;
           }
+        }
+        location /internal/ {
+          internal;
+          rewrite ^/internal/(.*)$ /$1 break;
+          proxy_method POST;
+          proxy_pass http://es-entrypoint:9200/api;
+        }
         location /health {
           proxy_pass  http://es-entrypoint:9200/_cluster/health;
         }
