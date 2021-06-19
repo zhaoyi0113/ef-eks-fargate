@@ -4,8 +4,6 @@ resource "aws_s3_bucket" "firehose_bucket" {
   acl    = "private"
 }
 
-
-
 # kinesis firehose
 resource "aws_kinesis_firehose_delivery_stream" "stream" {
   name        = "stream-${var.eks_cluster_name}"
@@ -15,9 +13,10 @@ resource "aws_kinesis_firehose_delivery_stream" "stream" {
     url                = var.es_metrics_endpoint
     name               = var.eks_cluster_name
     buffering_size     = 15
-    buffering_interval = 600
+    buffering_interval = 60
     role_arn           = aws_iam_role.firehose.arn
     s3_backup_mode     = "AllData"
+    retry_duration     = 0
     cloudwatch_logging_options {
       enabled         = true
       log_group_name  = aws_cloudwatch_log_group.firehose_metrics.name
@@ -76,11 +75,17 @@ resource "aws_iam_role_policy" "firehose_to_s3" {
         {
             "Effect": "Allow",
             "Action": [
-                "s3:*",
 								"logs:*"
             ],
-            "Resource": "${aws_kinesis_firehose_delivery_stream.stream.arn}"
-        }
+            "Resource": "${aws_cloudwatch_log_group.firehose_metrics.arn}"
+        },
+				{
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": "${aws_s3_bucket.firehose_bucket.arn}"
+				}
     ]
 }
 EOF
