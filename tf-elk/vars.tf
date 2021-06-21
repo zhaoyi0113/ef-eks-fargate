@@ -23,3 +23,8 @@ variable "es_metrics_endpoint" {
   type    = string
   default = "https://kibana.crms.myzeller.dev/es/test_metrics/_doc"
 }
+
+variable "alb_endpoint" {
+  type    = string
+  default = "https://kibana.crms.myzeller.dev"
+}

@@ -1,3 +1,6 @@
+locals {
+	es_metrics_endpoint = "${aws_api_gateway_stage.es.invoke_url}/test_metrics/_doc"
+}
 # firehose s3 bucket
 resource "aws_s3_bucket" "firehose_bucket" {
   bucket = "${var.eks_cluster_name}-${data.aws_caller_identity.current.account_id}-${var.region}-firehose"
@@ -10,7 +13,7 @@ resource "aws_kinesis_firehose_delivery_stream" "stream" {
   destination = "http_endpoint"
 
   http_endpoint_configuration {
-    url                = var.es_metrics_endpoint
+    url                = local.es_metrics_endpoint
     name               = var.eks_cluster_name
     buffering_size     = 15
     buffering_interval = 60
@@ -85,6 +88,13 @@ resource "aws_iam_role_policy" "firehose_to_s3" {
                 "s3:*"
             ],
             "Resource": "${aws_s3_bucket.firehose_bucket.arn}"
+				},
+				{
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:*"
+            ],
+            "Resource": "*"
 				}
     ]
 }
