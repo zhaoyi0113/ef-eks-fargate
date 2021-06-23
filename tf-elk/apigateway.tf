@@ -25,13 +25,24 @@ resource "aws_api_gateway_method" "metrics_doc" {
   rest_api_id   = aws_api_gateway_rest_api.es.id
 }
 
+resource "aws_api_gateway_method_settings" "metrics_doc" {
+  rest_api_id = aws_api_gateway_rest_api.es.id
+  stage_name  = aws_api_gateway_stage.es.stage_name
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled = true
+    logging_level   = "INFO"
+  }
+}
+
 resource "aws_api_gateway_integration" "metrics_doc" {
   integration_http_method = "POST"
-  http_method = aws_api_gateway_method.metrics_doc.http_method
-  resource_id = aws_api_gateway_resource.metrics_doc.id
-  rest_api_id = aws_api_gateway_rest_api.es.id
-  type        = "HTTP_PROXY"
-  uri         = local.alb_metric_endpoint
+  http_method             = aws_api_gateway_method.metrics_doc.http_method
+  resource_id             = aws_api_gateway_resource.metrics_doc.id
+  rest_api_id             = aws_api_gateway_rest_api.es.id
+  type                    = "HTTP_PROXY"
+  uri                     = local.alb_metric_endpoint
 }
 
 resource "aws_api_gateway_deployment" "es" {
@@ -62,8 +73,14 @@ resource "aws_api_gateway_stage" "es" {
   deployment_id = aws_api_gateway_deployment.es.id
   rest_api_id   = aws_api_gateway_rest_api.es.id
   stage_name    = "es"
+  depends_on    = [aws_cloudwatch_log_group.es]
+}
+
+resource "aws_cloudwatch_log_group" "es" {
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.es.id}/es"
+  retention_in_days = 7
 }
 
 output "api_endpoint" {
-	value = aws_api_gateway_stage.es.invoke_url
+  value = aws_api_gateway_stage.es.invoke_url
 }

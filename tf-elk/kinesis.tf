@@ -15,7 +15,7 @@ resource "aws_kinesis_firehose_delivery_stream" "stream" {
   http_endpoint_configuration {
     url                = local.es_metrics_endpoint
     name               = var.eks_cluster_name
-    buffering_size     = 15
+    buffering_size     = 5
     buffering_interval = 60
     role_arn           = aws_iam_role.firehose.arn
     s3_backup_mode     = "AllData"
@@ -80,7 +80,7 @@ resource "aws_iam_role_policy" "firehose_to_s3" {
             "Action": [
 								"logs:*"
             ],
-            "Resource": "${aws_cloudwatch_log_group.firehose_metrics.arn}"
+            "Resource": "${aws_cloudwatch_log_group.firehose_metrics.arn}:*:*"
         },
 				{
             "Effect": "Allow",
@@ -92,7 +92,18 @@ resource "aws_iam_role_policy" "firehose_to_s3" {
 				{
             "Effect": "Allow",
             "Action": [
-                "elasticloadbalancing:*"
+                "s3:*"
+            ],
+            "Resource": "${aws_s3_bucket.firehose_bucket.arn}/*"
+				},
+				{
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:*",
+								"glue:*",
+								"lambda:*",
+								"kms:*",
+								"kinesis:*"
             ],
             "Resource": "*"
 				}
