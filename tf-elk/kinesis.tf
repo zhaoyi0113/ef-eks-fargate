@@ -1,5 +1,5 @@
 locals {
-	es_metrics_endpoint = "${aws_api_gateway_stage.es.invoke_url}/test_metrics/_doc"
+	es_metrics_endpoint = "${aws_api_gateway_stage.es.invoke_url}/test_metrics/_doc?pipeline=aws_metrics"
 }
 # firehose s3 bucket
 resource "aws_s3_bucket" "firehose_bucket" {
@@ -15,7 +15,7 @@ resource "aws_kinesis_firehose_delivery_stream" "stream" {
   http_endpoint_configuration {
     url                = local.es_metrics_endpoint
     name               = var.eks_cluster_name
-    buffering_size     = 5
+    buffering_size     = 1
     buffering_interval = 60
     role_arn           = aws_iam_role.firehose.arn
     s3_backup_mode     = "AllData"
