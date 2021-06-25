@@ -1,10 +1,9 @@
 FROM node:14
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src
 
 COPY . .
 
-cd apps
 RUN yarn install --frozen-lockfile
 
 EXPOSE 8083
