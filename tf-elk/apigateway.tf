@@ -1,10 +1,16 @@
 locals {
-  alb_metric_endpoint = "${var.alb_endpoint}/es/test_metrics/_doc"
+  alb_metric_endpoint = "${var.alb_endpoint}/es/"
 }
 
 resource "aws_api_gateway_rest_api" "es" {
   name = "es"
 }
+
+# resource "aws_api_gateway_resource" "root" {
+#   parent_id   = aws_api_gateway_rest_api.es.root_resource_id
+#   path_part   = "/"
+#   rest_api_id = aws_api_gateway_rest_api.es.id
+# }
 
 resource "aws_api_gateway_resource" "metrics" {
   parent_id   = aws_api_gateway_rest_api.es.root_resource_id
@@ -18,6 +24,12 @@ resource "aws_api_gateway_resource" "metrics_doc" {
   rest_api_id = aws_api_gateway_rest_api.es.id
 }
 
+resource "aws_api_gateway_method" "root" {
+  authorization = "NONE"
+  http_method   = "POST"
+  resource_id   = aws_api_gateway_rest_api.es.root_resource_id
+  rest_api_id   = aws_api_gateway_rest_api.es.id
+}
 resource "aws_api_gateway_method" "metrics_doc" {
   authorization = "NONE"
   http_method   = "POST"
@@ -25,7 +37,7 @@ resource "aws_api_gateway_method" "metrics_doc" {
   rest_api_id   = aws_api_gateway_rest_api.es.id
 }
 
-resource "aws_api_gateway_method_settings" "metrics_doc" {
+resource "aws_api_gateway_method_settings" "setting" {
   rest_api_id = aws_api_gateway_rest_api.es.id
   stage_name  = aws_api_gateway_stage.es.stage_name
   method_path = "*/*"
@@ -36,10 +48,10 @@ resource "aws_api_gateway_method_settings" "metrics_doc" {
   }
 }
 
-resource "aws_api_gateway_integration" "metrics_doc" {
+resource "aws_api_gateway_integration" "root" {
   integration_http_method = "POST"
-  http_method             = aws_api_gateway_method.metrics_doc.http_method
-  resource_id             = aws_api_gateway_resource.metrics_doc.id
+  http_method             = aws_api_gateway_method.root.http_method
+  resource_id             = aws_api_gateway_rest_api.es.root_resource_id
   rest_api_id             = aws_api_gateway_rest_api.es.id
   type                    = "HTTP_PROXY"
   uri                     = local.alb_metric_endpoint
@@ -57,10 +69,9 @@ resource "aws_api_gateway_deployment" "es" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.metrics.id,
-      aws_api_gateway_resource.metrics_doc.id,
-      aws_api_gateway_method.metrics_doc.id,
-      aws_api_gateway_integration.metrics_doc.id,
+      aws_api_gateway_rest_api.es.root_resource_id,
+      aws_api_gateway_method.root.id,
+      aws_api_gateway_integration.root.id,
     ]))
   }
 
