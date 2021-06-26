@@ -19,12 +19,12 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-variable "es_metrics_endpoint" {
-  type    = string
-  default = "https://kibana.crms.myzeller.dev/es/test_metrics/_doc"
-}
-
 variable "alb_endpoint" {
   type    = string
   default = "https://kibana.crms.myzeller.dev"
+}
+
+variable "api_gateway_endpoint" {
+  type    = string
+  default = "https://mx8eiab9ji.execute-api.ap-southeast-2.amazonaws.com/elk"
 }

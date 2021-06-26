@@ -1,6 +1,6 @@
 locals {
-	# es_metrics_endpoint = "${aws_api_gateway_stage.es.invoke_url}/test_metrics/_doc?pipeline=aws_metrics"
-	es_metrics_endpoint = "${aws_api_gateway_stage.es.invoke_url}"
+	es_metrics_endpoint = "${var.api_gateway_endpoint}/metrics"
+	es_logs_endpoint = "${var.api_gateway_endpoint}/logs"
 }
 # firehose s3 bucket
 resource "aws_s3_bucket" "firehose_bucket" {
