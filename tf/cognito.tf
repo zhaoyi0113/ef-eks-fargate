@@ -22,7 +22,7 @@ resource "aws_cognito_user_pool_client" "kibana" {
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"]
-  callback_urls                        = ["${var.kibana_endpoint}/oauth2/idpresponse"]
+  callback_urls                        = ["${var.elk_endpoint}/oauth2/idpresponse"]
   supported_identity_providers         = ["COGNITO"]
 }
 
