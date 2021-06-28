@@ -9,12 +9,38 @@ resource "aws_s3_bucket" "firehose_bucket" {
 }
 
 # kinesis firehose
-resource "aws_kinesis_firehose_delivery_stream" "stream" {
-  name        = "stream-${var.eks_cluster_name}"
+resource "aws_kinesis_firehose_delivery_stream" "metrics" {
+  name        = "metrics-${var.eks_cluster_name}"
   destination = "http_endpoint"
 
   http_endpoint_configuration {
     url                = local.es_metrics_endpoint
+    name               = var.eks_cluster_name
+    buffering_size     = 1
+    buffering_interval = 60
+    role_arn           = aws_iam_role.firehose.arn
+    s3_backup_mode     = "AllData"
+    retry_duration     = 0
+    cloudwatch_logging_options {
+      enabled         = true
+      log_group_name  = aws_cloudwatch_log_group.firehose_metrics.name
+      log_stream_name = aws_cloudwatch_log_stream.firehose_metrics.name
+    }
+  }
+
+  s3_configuration {
+    role_arn   = aws_iam_role.firehose.arn
+    bucket_arn = aws_s3_bucket.firehose_bucket.arn
+  }
+}
+
+
+resource "aws_kinesis_firehose_delivery_stream" "logs" {
+  name        = "logs-${var.eks_cluster_name}"
+  destination = "http_endpoint"
+
+  http_endpoint_configuration {
+    url                = local.es_logs_endpoint
     name               = var.eks_cluster_name
     buffering_size     = 1
     buffering_interval = 60
@@ -117,7 +143,7 @@ EOF
 resource "aws_cloudwatch_metric_stream" "metric" {
   name          = "metric-stream-${var.eks_cluster_name}"
   role_arn      = aws_iam_role.metric_stream_to_firehose.arn
-  firehose_arn  = aws_kinesis_firehose_delivery_stream.stream.arn
+  firehose_arn  = aws_kinesis_firehose_delivery_stream.metrics.arn
   output_format = "json"
 
   include_filter {
@@ -173,7 +199,7 @@ resource "aws_iam_role_policy" "metric_stream_to_firehose" {
                 "firehose:PutRecord",
                 "firehose:PutRecordBatch"
             ],
-            "Resource": "${aws_kinesis_firehose_delivery_stream.stream.arn}"
+            "Resource": "${aws_kinesis_firehose_delivery_stream.metrics.arn}"
         }
     ]
 }
