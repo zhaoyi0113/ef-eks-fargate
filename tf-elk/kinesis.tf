@@ -205,3 +205,45 @@ resource "aws_iam_role_policy" "metric_stream_to_firehose" {
 }
 EOF
 }
+
+resource "aws_iam_role" "logs_stream_to_firehose" {
+  name = "logs-stream-to-firehose-${var.eks_cluster_name}"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "logs.${var.region}.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+  tags = {
+    COMPONENT_NAME = var.eks_cluster_name
+  }
+}
+
+resource "aws_iam_role_policy" "logs_stream_to_firehose" {
+  role = aws_iam_role.logs_stream_to_firehose.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "firehose:PutRecord",
+                "firehose:PutRecordBatch"
+            ],
+            "Resource": "${aws_kinesis_firehose_delivery_stream.logs.arn}"
+        }
+    ]
+}
+EOF
+}
