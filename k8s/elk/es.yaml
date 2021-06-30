@@ -11,6 +11,7 @@ data:
     discovery.zen.ping.unicast.hosts: elasticsearch-cluster
     discovery.zen.minimum_master_nodes: 1
     discovery.type: single-node
+    node.max_local_storage_nodes: 9
   ES_JAVA_OPTS: -Xms2g -Xmx4g
 ---
 apiVersion: apps/v1

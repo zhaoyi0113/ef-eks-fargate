@@ -228,9 +228,8 @@ POLICY
   }
 }
 
-resource "aws_iam_role_policy" "logs_stream_to_firehose" {
-  role = aws_iam_role.logs_stream_to_firehose.id
-
+resource "aws_iam_policy" "logs_stream_to_firehose" {
+	name = "logs_stream_to_firehose-${var.eks_cluster_name}"
   policy = <<EOF
 {
     "Version": "2012-10-17",
@@ -239,11 +238,110 @@ resource "aws_iam_role_policy" "logs_stream_to_firehose" {
             "Effect": "Allow",
             "Action": [
                 "firehose:PutRecord",
-                "firehose:PutRecordBatch"
+                "firehose:PutRecordBatch",
+								"logs:*"
             ],
             "Resource": "${aws_kinesis_firehose_delivery_stream.logs.arn}"
         }
     ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy_attachment" "logs_stream_to_firehose" {
+  role       = aws_iam_role.logs_stream_to_firehose.name
+  policy_arn = aws_iam_policy.logs_stream_to_firehose.arn
+}
+
+# cross account
+resource "aws_iam_role" "fe_logs_destination" {
+  name = "fe-logs-destination-${var.eks_cluster_name}"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "logs.${var.region}.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+  tags = {
+    COMPONENT_NAME = var.eks_cluster_name
+  }
+}
+resource "aws_iam_role_policy" "fe_logs_destination" {
+  name = "fe_logs_destination"
+  role = aws_iam_role.fe_logs_destination.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "firehose:*",
+								"logs:*",
+								"kinesis:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+resource "aws_cloudwatch_log_destination" "fe_log_destination" {
+  name       = "fe-log-destination"
+  role_arn   = aws_iam_role.fe_logs_destination.arn
+  target_arn = aws_kinesis_firehose_delivery_stream.logs.arn
+}
+
+resource "aws_iam_policy" "fe-log-destination" {
+	name = "fe-log-destination-${var.eks_cluster_name}"
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:*"
+            ],
+            "Resource": "${aws_cloudwatch_log_destination.fe_log_destination.arn}"
+        }
+    ]
+}
+EOF
+}
+
+data "aws_iam_policy_document" "fe_destination_policy" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type = "AWS"
+
+      identifiers = [
+        "047535751763",
+      ]
+    }
+
+    actions = [
+      "logs:PutSubscriptionFilter",
+    ]
+
+    resources = [
+      aws_cloudwatch_log_destination.fe_log_destination.arn,
+    ]
+  }
+}
+resource "aws_cloudwatch_log_destination_policy" "fe_log_destination" {
+  destination_name = aws_cloudwatch_log_destination.fe_log_destination.name
+  access_policy    = data.aws_iam_policy_document.fe_destination_policy.json
 }
