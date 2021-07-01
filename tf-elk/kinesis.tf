@@ -302,24 +302,6 @@ resource "aws_cloudwatch_log_destination" "fe_log_destination" {
   target_arn = aws_kinesis_firehose_delivery_stream.logs.arn
 }
 
-resource "aws_iam_policy" "fe-log-destination" {
-	name = "fe-log-destination-${var.eks_cluster_name}"
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:*"
-            ],
-            "Resource": "${aws_cloudwatch_log_destination.fe_log_destination.arn}"
-        }
-    ]
-}
-EOF
-}
-
 data "aws_iam_policy_document" "fe_destination_policy" {
   statement {
     effect = "Allow"
@@ -333,7 +315,7 @@ data "aws_iam_policy_document" "fe_destination_policy" {
     }
 
     actions = [
-      "logs:PutSubscriptionFilter",
+      "logs:*",
     ]
 
     resources = [
@@ -341,6 +323,7 @@ data "aws_iam_policy_document" "fe_destination_policy" {
     ]
   }
 }
+
 resource "aws_cloudwatch_log_destination_policy" "fe_log_destination" {
   destination_name = aws_cloudwatch_log_destination.fe_log_destination.name
   access_policy    = data.aws_iam_policy_document.fe_destination_policy.json
