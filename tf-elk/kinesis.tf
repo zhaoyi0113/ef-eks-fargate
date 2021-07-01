@@ -310,7 +310,7 @@ data "aws_iam_policy_document" "fe_destination_policy" {
       type = "AWS"
 
       identifiers = [
-        "047535751763",
+				var.fe_account_id,
       ]
     }
 
@@ -327,4 +327,48 @@ data "aws_iam_policy_document" "fe_destination_policy" {
 resource "aws_cloudwatch_log_destination_policy" "fe_log_destination" {
   destination_name = aws_cloudwatch_log_destination.fe_log_destination.name
   access_policy    = data.aws_iam_policy_document.fe_destination_policy.json
+}
+
+resource "aws_iam_role" "fe_lambda_log_group_listener" {
+  name = "fe-lambda-log-group-listener-${var.eks_cluster_name}"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${var.fe_lambda_log_group_listener_role}"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+  tags = {
+    COMPONENT_NAME = var.eks_cluster_name
+  }
+}
+resource "aws_iam_role_policy" "fe_lambda_log_group_listener" {
+  name = "fe_lambda_log_group_listener"
+  role = aws_iam_role.fe_lambda_log_group_listener.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "firehose:*",
+								"logs:*",
+								"kinesis:*",
+								"sts:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
 }

@@ -36,3 +36,9 @@ kubectl apply -f k8s/efs/pv.yaml
 ## Deploy elk stack pods under k8selk
 
 ## Deploy kinesis firehose under tf-elk
+
+## Add cross account role
+
+Need to add a role to allow logs from other accounts.
+
+- Create a new role in kinesis.tf
