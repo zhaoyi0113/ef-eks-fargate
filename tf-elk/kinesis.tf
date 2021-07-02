@@ -1,6 +1,6 @@
 locals {
-	es_metrics_endpoint = "${var.api_gateway_endpoint}/metrics"
-	es_logs_endpoint = "${var.api_gateway_endpoint}/logs"
+	es_metrics_endpoint = "${var.alb_endpoint}/es/metrics"
+	es_logs_endpoint = "${var.alb_endpoint}/es/logs"
 }
 # firehose s3 bucket
 resource "aws_s3_bucket" "firehose_bucket" {
