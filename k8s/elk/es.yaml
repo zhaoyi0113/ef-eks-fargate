@@ -8,11 +8,14 @@ data:
     cluster.name: elk-cluster
     network.host: "0.0.0.0"
     bootstrap.memory_lock: false
-    discovery.zen.ping.unicast.hosts: elasticsearch-cluster
-    discovery.zen.minimum_master_nodes: 1
+    # discovery.zen.minimum_master_nodes: 2
     discovery.type: single-node
     node.max_local_storage_nodes: 9
-  ES_JAVA_OPTS: -Xms2g -Xmx4g
+    # discovery.seed_hosts:
+    #   - es-0.es-entrypoint.default.svc.cluster.local
+    #   - es-1.es-entrypoint.default.svc.cluster.local
+    #   - es-2.es-entrypoint.default.svc.cluster.local
+  ES_JAVA_OPTS: -Xms2g -Xmx6g
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -74,8 +77,9 @@ metadata:
 spec:
   selector:
     name: es
+  clusterIP: None
   ports:
     - port: 9200
       targetPort: 9200
       protocol: TCP
-  type: NodePort
+  # type: NodePort
