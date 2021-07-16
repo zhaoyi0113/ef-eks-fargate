@@ -2,14 +2,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: es-config
+  name: es-test-config
 data:
   elasticsearch.yml: |
     cluster.name: elk-cluster
     network.host: "0.0.0.0"
     bootstrap.memory_lock: false
     # discovery.zen.minimum_master_nodes: 2
-    discovery.type: single-node
+    # discovery.type: single-node
     node.max_local_storage_nodes: 9
     # discovery.seed_hosts:
     #   - es-0.es-entrypoint.default.svc.cluster.local
@@ -20,11 +20,11 @@ data:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: es
+  name: es-test
   namespace: default
 spec:
-  serviceName: es-entrypoint
-  replicas: 1
+  serviceName: es-test-entrypoint
+  replicas: 3
   selector:
     matchLabels:
       name: es
@@ -34,23 +34,23 @@ spec:
         name: es
     spec:
       volumes:
-        - name: es-config
+        - name: es-test-config
           configMap:
-            name: es-config
+            name: es-test-config
             items:
               - key: elasticsearch.yml
                 path: elasticsearch.yml
         - name: persistent-storage
           persistentVolumeClaim:
             claimName: es-claim
-      initContainers:
-        - name: permissions-fix
-          image: busybox
-          volumeMounts:
-            - name: persistent-storage
-              mountPath: /usr/share/elasticsearch/data
-          command: [ 'chown' ]
-          args: [ '1000:1000', '/usr/share/elasticsearch/data' ]
+      # initContainers:
+      #   - name: permissions-fix
+      #     image: busybox
+      #     volumeMounts:
+      #       - name: persistent-storage
+      #         mountPath: /usr/share/elasticsearch/data
+      #     command: [ 'chown' ]
+      #     args: [ '1000:1000', '/usr/share/elasticsearch/data' ]
       containers:
         - name: es
           image: elasticsearch:7.10.1
@@ -64,19 +64,19 @@ spec:
             - containerPort: 9300
               name: inter-node
           volumeMounts:
-            - name: es-config
+            - name: es-test-config
               mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
               subPath: elasticsearch.yml
-            - name: persistent-storage
-              mountPath: /usr/share/elasticsearch/data
+            # - name: persistent-storage
+            #   mountPath: /usr/share/elasticsearch/data
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: es-entrypoint
+  name: es-test-entrypoint
 spec:
   selector:
-    name: es
+    name: es-test
   ports:
     - port: 9200
       targetPort: 9200
