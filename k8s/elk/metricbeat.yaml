@@ -37,9 +37,9 @@ data:
       regions:
         - ap-southeast-2
       # role_arn: arn:aws:iam::264100014405:role/ELKIntegrationRole
-      access_key_id: ASIAT27MWNFCYRXF3PGP
-      secret_access_key: k5octw5Nq1QOqnVG2fFe7zM8yRNXHaCgFFHiTKck
-      session_token: IQoJb3JpZ2luX2VjEHoaDmFwLXNvdXRoZWFzdC0yIkcwRQIhAKnrW/eJl3wn0EIDgRRVil2B6mpKYJBkrEn71SnXU53VAiAgnEgvqopYPufQv+PfG7uvUwj83TIzawp/lNdUvp64DSqMAwhzEAEaDDI2NDEwMDAxNDQwNSIMJY9k6GmzW4NIkt1RKukCMPXUB7OfFOh1AkxTXaPbh5SmK4b0SrfoLLBy1xTKzMRwf/V50cKN4e3Izq5xnPQrNfUuB6zXtGP6Lpqm3LPPx2XJfHNU9EqPnMDL+oFZwAgL5wo+nYTRB6yNve5mIBiXioes1OPcYlhX6QZcBzSf6BJVrzp+zCGlYUl11YZklg86rq4+70ov2DMttldxj8k4+VszNgaEC0UQQJflNSVzoqA77murlDWnFLec1cz8whXe6NbW6g7IfBSjjTP7ENk+/DFtE+9PXpyZBLrDkPH63Zlbnl4EllNiI+Jqm04FHpsStLRFziTAd8m69Ofv86BRc9J3avRDJ1uxVF+bFHeCQDs9XuA9hfrFgLO4qg+7EQXSWpu/tHcHsKUkHZfLJ6d+KUEeD//y+2BQve7pYuE/UkLotv2ZTOIvpSjOIeXrtsBoFeH1BMCoi8fI82GNzRY0aSNn2snXx6M3oZPX8bUgSXaSfO9Ins7fEjDf6s+HBjqmAcB5vVLIW95ZRGzpKyEJc+NsCT0lXmiTgQHXEkWLGa4Mq488hRJ/KnpiFF+RhjvzOECyPi2/EmO4p897s5GktLUS6K/l+jUj1NPek7QciIUFlW0FdTf2URZ2yUv1jW/D/NDKf5t5iivHOBunVZJo/DFNvV+bNWFWvIiJzEkCgvHqLSjrmObmaB09uzckRVjBtRU4tU7vveupqKtcjmcAR9jOYjBPtks=
+      access_key_id: 
+      secret_access_key: 
+      session_token: 
       metricsets:
         # - elb
         # - natgateway
