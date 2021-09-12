@@ -31,6 +31,9 @@ data:
             proxy_cache_bypass $http_upgrade;
             # rewrite ^/kibana/(.*)$ /$1 break;
           }
+          location /internal {
+            proxy_pass  http://kibana-entrypoint:5601/internal;
+          }
       }
       server {
         listen  8081;
